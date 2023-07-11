@@ -99,10 +99,6 @@ public class LevelManager : MonoBehaviour
                         gamedoneScreen.SetActive(false);
                     }
                 }
-            } else {
-                if (Input.GetKeyDown(KeyCode.Space)) {
-                    StartNextLevel();
-                }
             }
         }
     }
@@ -163,8 +159,8 @@ public class LevelManager : MonoBehaviour
             fewestPutts[currentLevel] = Mathf.Min(puttCount, fewestPutts[currentLevel]);
         }
         endTimeText.SetText(TimeToString(completionTime));
-        endPuttsText.SetText(puttCount + "");
-        levelNameText.SetText("Course " + (currentLevel + 1));
+        // endPuttsText.SetText(puttCount + "");
+        // levelNameText.SetText("Course " + (currentLevel + 1));
         totalPuttCount += puttCount;
     }
     public void StartNextLevel() {

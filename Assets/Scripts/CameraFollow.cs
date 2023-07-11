@@ -16,6 +16,8 @@ public class CameraFollow : MonoBehaviour
     public float distanceModifier = 1f;
     private float actualDistanceModifier = 1f;
     public float predictionDistance = .5f;
+    public float verticalOffset = 0;
+    public float actualVerticalOffset = 0;
     void OnEnable() {
         instance = this;
         actualAngle = angle;
@@ -37,6 +39,8 @@ public class CameraFollow : MonoBehaviour
     }
     public void Reset(float angle) {
         actualRotation = rotation = angle;
+        actualDistanceModifier = distanceModifier;
+        actualVerticalOffset = verticalOffset;
         var rotatedOffset = Quaternion.Euler(actualAngle, actualRotation, 0) * offset;
         transform.position = trackedLocation + rotatedOffset * actualDistanceModifier;
     }
@@ -54,9 +58,13 @@ public class CameraFollow : MonoBehaviour
         }
         trackedLocation += Mathf.Min(snapThisFrame, 1) * delta;
 
+        var cameraOffset = Vector3.zero;
         if (LevelManager.instance.waitingForNext) {
             distanceModifier += 3f;
             rotation += Time.deltaTime * 20f;
+            verticalOffset = -3;
+        } else {
+            actualVerticalOffset = verticalOffset = 0;
         }
         
         actualAngle += (angle - actualAngle) * snappiness * Time.deltaTime;
@@ -72,9 +80,10 @@ public class CameraFollow : MonoBehaviour
         }
         actualRotation += rotationDelta * snappiness * 2f * Time.deltaTime;
         actualDistanceModifier += (distanceModifier - actualDistanceModifier) * snappiness * 2f * Time.deltaTime;
+        actualVerticalOffset += (verticalOffset - actualVerticalOffset) * snappiness * 5f * Time.deltaTime;
 
         var rotatedOffset = Quaternion.Euler(actualAngle, actualRotation, 0) * offset;
-        transform.position = trackedLocation + rotatedOffset * actualDistanceModifier;
+        transform.position = trackedLocation + rotatedOffset * actualDistanceModifier + cameraOffset + actualVerticalOffset*Vector3.up;
         transform.LookAt(trackedLocation);
     }
 }
