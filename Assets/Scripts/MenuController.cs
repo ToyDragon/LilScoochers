@@ -26,8 +26,13 @@ public class MenuController : MonoBehaviour
     public GameObject sampleRightSprite;
     public GameObject sampleStopSprite;
     public AudioSource musicSource;
-    public bool showControlsWhenClosed = true;
+    // public bool showControlsWhenClosed = true;
     private List<AudioSource> sfxAudioSources;
+    public TutorialPuttForward tutorialPuttForward;
+    public float sfxVolume;
+    public bool AnyWindowOpen() {
+        return tutorialPuttForward.gameObject.activeSelf || LevelManager.instance.waitingForNext;
+    }
     void OnEnable()
     {
         instance = this;
@@ -36,6 +41,7 @@ public class MenuController : MonoBehaviour
         leftRed.SetActive(false);
         rightGreen.SetActive(false);
         rightRed.SetActive(false);
+        open = false;
     }
     void Start() {
         sfxAudioSources = new List<AudioSource>();
@@ -43,24 +49,24 @@ public class MenuController : MonoBehaviour
             sfxAudioSources.Add(sfx.GetComponent<AudioSource>());
         }
         foreach (var sfx in sfxAudioSources) {
-            sfx.volume = musicSource.volume;
+            sfx.volume = BallCar.instance.hitVolume;
         }
+        sfxVolume = BallCar.instance.hitVolume;
     }
     void Update() {
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Tab)) {
-            open = !open;
-            if (open) {
-                windowRect = new Rect(Screen.width/2f - 300, Screen.height/2f - 200, 600, 400);
-                isAPussy = false;
-            }
+        if (Input.GetKeyDown(KeyCode.Tab)) {
+            tutorialPuttForward.gameObject.SetActive(!tutorialPuttForward.gameObject.activeSelf);
         }
-        if ((!showControlsWhenClosed && !open) || LevelManager.instance.waitingForNext) {
-            controlsDisplay.SetActive(false);
-        } else {
-            controlsDisplay.SetActive(true);
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            open = !open;
+        }
+        // if ((!showControlsWhenClosed && !open) || LevelManager.instance.waitingForNext) {
+        //     // controlsDisplay.SetActive(false);
+        // } else {
+            // controlsDisplay.SetActive(true);
             UpdateControlDisplay();
             UpdateComboArrows();
-        }
+        // }
     }
     private Vector3 Lerp(Transform a, Transform b, float t) {
         return a.position + (b.position - a.position) * t;
@@ -209,24 +215,25 @@ public class MenuController : MonoBehaviour
 
         GUILayout.Label("Settings:");
         GUILayout.BeginScrollView(Vector2.zero);
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("Show control tutorial:");
-        if (GUILayout.Button(showControlsWhenClosed ? "always" : "in menu")) {
-            showControlsWhenClosed = !showControlsWhenClosed;
-        }
-        GUILayout.EndHorizontal();
+        // GUILayout.BeginHorizontal();
+        // GUILayout.Label("Show control tutorial:");
+        // if (GUILayout.Button(showControlsWhenClosed ? "always" : "in menu")) {
+        //     showControlsWhenClosed = !showControlsWhenClosed;
+        // }
+        // GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
         GUILayout.Label("SFX Volume:");
         BallCar.instance.hitVolume = GUILayout.HorizontalSlider(BallCar.instance.hitVolume, 0, 1, GUILayout.Width(150));
+        foreach (var sfx in sfxAudioSources) {
+            sfx.volume = BallCar.instance.hitVolume;
+        }
+        sfxVolume = BallCar.instance.hitVolume;
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
         GUILayout.Label("Music Volume:");
         musicSource.volume = GUILayout.HorizontalSlider(musicSource.volume, 0, .5f, GUILayout.Width(150));
-        foreach (var sfx in sfxAudioSources) {
-            sfx.volume = musicSource.volume;
-        }
         GUILayout.EndHorizontal();
         
         GUILayout.BeginHorizontal();

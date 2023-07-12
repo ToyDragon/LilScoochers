@@ -205,6 +205,10 @@ public class ASDJKLInputManager : MonoBehaviour
     }
     void Update()
     {
+        if (MenuController.instance.AnyWindowOpen()) {
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.A)) {
             PushState(true, 0);
         } else if (Input.GetKeyDown(KeyCode.S)) {

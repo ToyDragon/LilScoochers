@@ -46,6 +46,18 @@ public class CameraFollow : MonoBehaviour
     }
     void Update()
     {
+        actualAngle += (angle - actualAngle) * snappiness * Time.deltaTime;
+        // actual and target rotations are [0, 360)
+        float targetRotation = (rotation + 360) % 360;
+        actualRotation = (actualRotation + 360) % 360;
+        float rotationDelta = targetRotation - actualRotation;
+        if (rotationDelta > 180) {
+            rotationDelta -= 360;
+        }
+        if (rotationDelta < -180) {
+            rotationDelta += 360;
+        }
+
         var delta = (target.transform.position + target.velocity * predictionDistance) - trackedLocation;
 
         distanceModifier = Mathf.Clamp01(target.velocity.magnitude / 1.5f) + 1f;
@@ -66,24 +78,12 @@ public class CameraFollow : MonoBehaviour
         } else {
             actualVerticalOffset = verticalOffset = 0;
         }
-        
-        actualAngle += (angle - actualAngle) * snappiness * Time.deltaTime;
-        // actual and target rotations are [0, 360)
-        float targetRotation = (rotation + 360) % 360;
-        actualRotation = (actualRotation + 360) % 360;
-        float rotationDelta = targetRotation - actualRotation;
-        if (rotationDelta > 180) {
-            rotationDelta -= 360;
-        }
-        if (rotationDelta < -180) {
-            rotationDelta += 360;
-        }
         actualRotation += rotationDelta * snappiness * 2f * Time.deltaTime;
         actualDistanceModifier += (distanceModifier - actualDistanceModifier) * snappiness * 2f * Time.deltaTime;
         actualVerticalOffset += (verticalOffset - actualVerticalOffset) * snappiness * 5f * Time.deltaTime;
 
         var rotatedOffset = Quaternion.Euler(actualAngle, actualRotation, 0) * offset;
         transform.position = trackedLocation + rotatedOffset * actualDistanceModifier + cameraOffset + actualVerticalOffset*Vector3.up;
-        transform.LookAt(trackedLocation);
+        transform.LookAt(trackedLocation + Quaternion.Euler(0, actualRotation, 0) * Vector3.forward * 1f);
     }
 }

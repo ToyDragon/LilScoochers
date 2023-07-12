@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour
 {
@@ -13,13 +14,23 @@ public class LevelManager : MonoBehaviour
     public float timeLevelStarted;
     public List<float> fastestCompletions = new List<float>();
     public List<int> fewestPutts = new List<int>();
+    public List<int> completionCount = new List<int>();
     public TMPro.TMP_Text endTimeText;
     public TMPro.TMP_Text endPuttsText;
-    public TMPro.TMP_Text levelNameText;
     public TMPro.TMP_Text minimapText;
+    public TMPro.TMP_Text minimapNameText;
     public int puttCount;
     public int totalPuttCount;
     public float totalTime;
+    public TMPro.TMP_Text reqGoldText;
+    public TMPro.TMP_Text reqSilverText;
+    public TMPro.TMP_Text reqBronzeText;
+    public GameObject newBestTimeObj;
+    public Image awardedMedal;
+    public Sprite spriteGoldMedal;
+    public Sprite spriteSilverMedal;
+    public Sprite spriteBronzeMedal;
+    public TMPro.TMP_Text completionCountText;
 
     public TMPro.TMP_Text gameDoneTotalTime;
     public TMPro.TMP_Text gameDoneTotatPutts;
@@ -45,6 +56,7 @@ public class LevelManager : MonoBehaviour
         for (int i = 0; i < levelDatas.Count; i++) {
             fastestCompletions.Add(0f);
             fewestPutts.Add(0);
+            completionCount.Add(0);
         }
     }
     void Start() {
@@ -121,6 +133,7 @@ public class LevelManager : MonoBehaviour
         totalPuttCount += puttCount;
         puttCount = 0;
         minimapText.SetText("Course " + (currentLevel + 1));
+        minimapNameText.SetText(levelDatas[currentLevel].courseName);
         Debug.Log("Reset course " + (currentLevel + 1));
     }
     private string TimeToString(float totalTime) {
@@ -140,7 +153,13 @@ public class LevelManager : MonoBehaviour
         waitingForNext = true;
         BallCar.instance.Hide();
         levelDatas[currentLevel].cupEffects.PlayEffects();
+        completionCount[currentLevel]++;
         courseDoneDisplayRoot.SetActive(true);
+        string suffix = "th";
+        if (completionCount[currentLevel] % 10 == 1) { suffix = "st"; }
+        if (completionCount[currentLevel] % 10 == 2) { suffix = "nd"; }
+        if (completionCount[currentLevel] % 10 == 3) { suffix = "rd"; }
+        completionCountText.SetText(completionCount[currentLevel] + suffix + " completion!");
         float completionTime = Time.time - timeLevelStarted;
         totalTime += completionTime;
         timeLevelStarted = -1;
@@ -161,6 +180,21 @@ public class LevelManager : MonoBehaviour
         endTimeText.SetText(TimeToString(completionTime));
         // endPuttsText.SetText(puttCount + "");
         // levelNameText.SetText("Course " + (currentLevel + 1));
+        reqGoldText.SetText(TimeToString(levelDatas[currentLevel].goldSeconds));
+        reqSilverText.SetText(TimeToString(levelDatas[currentLevel].silverSeconds));
+        reqBronzeText.SetText(TimeToString(levelDatas[currentLevel].bronzeSeconds));
+        if (completionTime < levelDatas[currentLevel].goldSeconds) {
+            awardedMedal.gameObject.SetActive(true);
+            awardedMedal.sprite = spriteGoldMedal;
+        } else if (completionTime < levelDatas[currentLevel].silverSeconds) {
+            awardedMedal.gameObject.SetActive(true);
+            awardedMedal.sprite = spriteSilverMedal;
+        } else if (completionTime < levelDatas[currentLevel].bronzeSeconds) {
+            awardedMedal.gameObject.SetActive(true);
+            awardedMedal.sprite = spriteBronzeMedal;
+        } else {
+            awardedMedal.gameObject.SetActive(false);
+        }
         totalPuttCount += puttCount;
     }
     public void StartNextLevel() {

@@ -8,13 +8,13 @@ public class UITextBounce : MonoBehaviour
     public float bounceHeight = 25f;
     public float bouncePeriod = 1f;
     void OnEnable() {
-        startPos = transform.position;
+        startPos = transform.localPosition;
     }
     void OnDisable() {
-        transform.position = startPos;
+        transform.localPosition = startPos;
     }
     void Update()
     {
-        transform.position = startPos + Mathf.Abs(Mathf.Sin(Time.time * Mathf.PI / bouncePeriod)) * bounceHeight * Vector3.up;
+        transform.localPosition = startPos + Mathf.Abs(Mathf.Sin(Time.time * Mathf.PI / bouncePeriod)) * bounceHeight * Vector3.up;
     }
 }

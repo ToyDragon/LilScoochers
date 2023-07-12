@@ -8,12 +8,14 @@ public class TextPressASDJKL : MonoBehaviour
     public bool[] presses = new bool[6];
     public string[] chars = new string[] {"A", "S", "D", "J", "K", "L"};
     public KeyCode[] keyCodes = new KeyCode[] { KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.J, KeyCode.K, KeyCode.L };
-    private string originalText;
+    public string originalText;
     public Color pressedColor = Color.green;
     void OnEnable() {
         Reset();
         textElement = GetComponent<TMPro.TMP_Text>();
-        originalText = textElement.text;
+        if (originalText == "") {
+            originalText = textElement.text;
+        }
         textElement.richText = true;
         UpdateDisplay(); 
     }

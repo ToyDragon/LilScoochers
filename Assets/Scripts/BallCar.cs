@@ -43,6 +43,9 @@ public class BallCar : MonoBehaviour
             LevelManager.instance.ResetLevel();
         }
     }
+    public void PlayHitClip() {
+        audioSource.PlayOneShot(ballHitClip, hitVolume);
+    }
     void OnEnable()
     {
         recentMaxMomentum = momentum;
@@ -101,8 +104,14 @@ public class BallCar : MonoBehaviour
                 //     momentum = recentMaxMomentum;
                 //     recentMaxMomentum -= gainedMomentum * .5f;
                 // }
-                momentum = recentMaxMomentum = Mathf.Min(momentum + 2, maxMomentum);
-                speedModifier += .4f;
+                if (momentum == 0 && rb.velocity.magnitude < .1f) {
+                    rb.AddForce(Quaternion.Euler(0, lastDirection, 0) * Vector3.forward * targetSpeed * 1, ForceMode.Force);
+                    momentum = recentMaxMomentum = maxMomentum;
+                    speedModifier = Mathf.Max(1f, speedModifier + 1f);
+                } else {
+                    momentum = recentMaxMomentum = maxMomentum;
+                    speedModifier = Mathf.Max(1f, speedModifier + 1f);
+                }
                 audioSource.PlayOneShot(ballHitClip, hitVolume);
                 LevelManager.instance.puttCount++;
             }
